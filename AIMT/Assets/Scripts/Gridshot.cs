@@ -88,13 +88,29 @@ public class Gridshot : MonoBehaviour
             return;
         }
 
-        Quaternion spawnRotation = Quaternion.Euler(0f, 0f, 0f);
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            Debug.LogError("Main camera not found.");
+            return;
+        }
+
+        float screenEdgeOffset = 5f;
+        float targetHeight = targetPrefab.GetComponent<Renderer>().bounds.size.y / 2f;
+        float targetWidth = targetPrefab.GetComponent<Renderer>().bounds.size.x / 2f;
+
+        float minX = cam.ScreenToWorldPoint(new Vector3(0, 0, 0)).x + targetWidth + screenEdgeOffset;
+        float maxX = cam.ScreenToWorldPoint(new Vector3(Screen.width, 0, 0)).x - targetWidth - screenEdgeOffset;
+        float minY = cam.ScreenToWorldPoint(new Vector3(0, 0, 0)).y + targetHeight + screenEdgeOffset;
+        float maxY = cam.ScreenToWorldPoint(new Vector3(0, Screen.height, 0)).y - targetHeight - screenEdgeOffset;
+
         Vector3 spawnPosition = new Vector3(
-            UnityEngine.Random.Range(-5f, 5f),
-            UnityEngine.Random.Range(-3f, 2f),
+            UnityEngine.Random.Range(minX, maxX),
+            UnityEngine.Random.Range(minY, maxY),
             0f
         );
 
+        Quaternion spawnRotation = Quaternion.identity;
         GameObject newTarget = Instantiate(targetPrefab, spawnPosition, spawnRotation);
         targets.Add(newTarget);
     }
